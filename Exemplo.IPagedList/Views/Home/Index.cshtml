@@ -1,31 +1,101 @@
-﻿@{
-    ViewBag.Title = "Home Page";
+﻿@model IEnumerable<Exemplo.IPagedList.Models.Pessoa>
+@using X.PagedList.Mvc;
+@using X.PagedList;
+
+@{
+    ViewBag.Title = "Index";
 }
 
-<div class="jumbotron">
-    <h1>ASP.NET</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-    <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
-</div>
+<h2>Listagem</h2>
 
-<div class="row">
-    <div class="col-md-4">
-        <h2>Getting started</h2>
-        <p>
-            ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-            enables a clean separation of concerns and gives you full control over markup
-            for enjoyable, agile development.
-        </p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
+<hr />
+
+<p>
+    @Html.ActionLink("Novo cadastro", "Create", null, new { @class = "btn btn-primary" })
+</p>
+
+@using (Html.BeginForm(FormMethod.Get))
+{
+    <div class="form-inline">
+        Filtrar por nome: @Html.TextBox("SearchString", ViewBag.CurrentFilter as string, new { @class = "form-control"})
+
+        Quantidade de registros:  @Html.DropDownList("items", new SelectList(ViewBag.dropdown, "Value", "Text", ViewBag.dropdownselecionado), new{ @class = "form-control" })
+
+        <input type="submit" value="Procurar" class="btn btn-primary" />
     </div>
-    <div class="col-md-4">
-        <h2>Get more libraries</h2>
-        <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Web Hosting</h2>
-        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
-    </div>
-</div>
+}
+
+<br />
+
+<table class="table table-bordered table-hover table-striped table-condensed table-responsive">
+    <tr>
+        <th>
+        @Html.CheckBox("chkMarcarTodos")
+        </th>
+        <th>
+            Id
+        </th>
+        <th>
+            @Html.ActionLink("Nome", "Index", new { sortOrder = ViewBag.NomeSortParam, currentFilter = ViewBag.CurrentFilter })
+        </th>
+        <th>
+            @Html.ActionLink("Profissão", "Index", new { sortOrder = ViewBag.ProfissaoSortParam, currentFilter = ViewBag.CurrentFilter })
+        </th>
+        <th>
+            @Html.ActionLink("Endereço", "Index", new { sortOrder = ViewBag.EnderecoSortParam, currentFilter = ViewBag.CurrentFilter })
+        </th>
+        <th>
+            @Html.ActionLink("E-mail", "Index", new { sortOrder = ViewBag.EmailSortParam, currentFilter = ViewBag.CurrentFilter })
+        </th>
+        <th style="text-align:center">
+            Controles
+        </th>
+       
+    </tr>
+
+    @foreach (var item in ViewBag.PagePessoas)
+    {
+        <tr>
+            <td>@Html.CheckBox("chk", new {  id = item.PessoaId})</td>
+            <td>@item.PessoaId</td>
+            <td>@item.Nome</td>
+            <td>@item.Profissao</td>
+            <td>@item.Endereco</td>
+            <td>@item.Email</td>
+
+            
+            <td style="text-align:center">
+                <button onclick="location.href='@Url.Action("Edit", new { id = item.PessoaId})';return false;" class="btn btn-primary">
+                    <span class="glyphicon glyphicon-edit">
+                        Editar
+                    </span>
+                </button>
+
+                <button onclick="location.href='@Url.Action("Details", new { id = item.PessoaId})';return false;" class="btn btn-info">
+                    <span class="glyphicon glyphicon-info-sign">
+                        Detalhes
+                    </span>
+                </button>
+
+                <button name="excluir" id=@item.PessoaId onclick="location.href='@Url.Action("Delete", new { id = item.PessoaId})';return false;" class="btn btn-danger">
+                    <span class="glyphicon glyphicon-trash red">
+                        Excluir
+                    </span>
+                </button>
+            </td>
+        </tr>
+    }
+
+</table>
+
+@Html.PagedListPager((IPagedList)ViewBag.PagePessoas, page => Url.Action("Index", new { page }))
+
+@section Scripts{
+    
+    <script>
+        $("#chkMarcarTodos").on("click", function () {
+            $("input:checkbox").prop('checked', $(this).prop("checked"));
+        })
+    </script>
+
+}
